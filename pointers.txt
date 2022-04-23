@@ -1,0 +1,23 @@
+1. Our data is real city data and hence much more practical and realistic than deepMIMO data
+2. Our user heights change with the terrain of the city unlike the deepMIMO data where user height always remains 2m
+3. its THz domain and not mmWave
+4. Real situation of gas, fog, cloud affecting THz waves are taken into account which were hitherto not that significantly affecting propagation
+5. 
+
+To Generate deepMIMO data
+1. run raytracer_100GHz.m
+2. Copy and paste O1_60.params.mat into O1_60 and rename it to O1_100
+3. modify and run inner_param_generator_100GHz.m
+4. modify parameters_100GHz, and DeepMIMO_generator as needed for the current situation
+5. modify and run DeepMIMODatasetGenerator_100GHz.m 
+6. run raytracer_2p4GHz.m
+7. Copy and paste O1_2p4.params.mat into O1_2p4 and rename it to O1_2p4
+8. modify and run inner_param_generator_2p4GHz.m
+9. modify parameters_2p4GHz, and DeepMIMO_generator as needed for the current situation
+10. run DeepMIMODatasetGenerator_2p4GHz.m
+
+To run ML
+1. Rename deepMIMOdataset files as dataset_100GHz and dataset_2p4GHz
+2. Modify and run datastructure_generator.m
+3. Modify all parameters appropriately in main.m
+4. run main.m 
