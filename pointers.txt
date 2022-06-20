@@ -19,5 +19,6 @@ To Generate deepMIMO data
 To run ML
 1. Rename deepMIMOdataset files as dataset_100GHz and dataset_2p4GHz
 2. Modify and run datastructure_generator.m
-3. Modify all parameters appropriately in main.m
+3. Modify all parameters appropriately in main.m, dataprep.m and build.m
 4. run main.m 
+5. Modify and run predict_best_BS_and_beamformer

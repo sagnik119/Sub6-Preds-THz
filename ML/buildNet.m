@@ -1,60 +1,51 @@
-function net = buildNet(options)
-%=========================================================================%
-% Build the neural network.
-%=========================================================================%
+% CNN model 
 
-switch options.type
-    case 'MLP1'
-        input = imageInputLayer(options.inputSize, 'Name', 'input');
-        fc1 = fullyConnectedLayer(2048, 'Name', 'fc1');
-        relu1 = reluLayer('Name','relu1');
-        %relu1 = clippedReluLayer(10,"Name",'relu1');
-        drop1 = dropoutLayer(0.4, 'Name', 'drop1');
-        fc2 = fullyConnectedLayer(2048, 'Name', 'fc2');
-        relu2 = reluLayer('Name','relu2');
-        %relu2 = clippedReluLayer(10,"Name",'relu2');
-        drop2 = dropoutLayer(0.4, 'Name', 'drop2');
-        fc3 = fullyConnectedLayer(2048, 'Name', 'fc3');
-        relu3 = reluLayer('Name','relu3');
-        %relu3 = clippedReluLayer(10,"Name",'relu3');
-        drop3 = dropoutLayer(0.4, 'Name', 'drop3');
-        fc4 = fullyConnectedLayer(2048, 'Name', 'fc4');
-        relu4 = reluLayer('Name','relu4');
-        %relu4 = clippedReluLayer(10,"Name",'relu4');
-        drop4 = dropoutLayer(0.4, 'Name', 'drop4');
-        fc5 = fullyConnectedLayer(2048, 'Name', 'fc5');
-        relu5 = reluLayer('Name','relu5');
-        %relu5 = clippedReluLayer(10,"Name",'relu5');
-        drop5 = dropoutLayer(0.4, 'Name', 'drop5');
-%         fc6 = fullyConnectedLayer(options.numAnt(2), 'Name', 'fc6');
-%         sfm = softmaxLayer('Name','sfm');
-%         classifier = classificationLayer('Name','classifier');
-        %fc6 = fullyConnectedLayer(options.outputSize(3), 'Name', 'fc6');
-        fc6 = fullyConnectedLayer(options.outputSize(3), 'Name', 'fc6');
-%         relu6 = reluLayer('Name','relu6');
-        regressor = regressionLayer('Name', 'regressor');
+function net = buildnet (options)
+    % Returns CNN model
+    % Defining individual layers
+    input = imageInputLayer(options.inputSize,"Name",'input');
 
-        layers = [
-                  input
-                  fc1
-                  relu1
-                  drop1
-                  fc2
-                  relu2
-                  drop2
-                  fc3
-                  relu3
-                  drop3
-                  fc4
-                  relu4
-                  drop4
-                  fc5
-                  relu5
-                  drop5
-                  fc6
-                  %relu6
-                  regressor
-                 ];
-        net = layerGraph(layers);
+    conv1 = convolution2dLayer([1,5],16, 'Name','conv1');
+    norm1 = batchNormalizationLayer('Name', 'norm1');
+    relu1 = reluLayer('Name','relu1');
+    maxpool1 = maxPooling2dLayer([1,2],'Stride',[1,2], 'Name','maxpool1');
 
+    conv2 = convolution2dLayer([1,5],32, 'Name','conv2');
+    norm2 = batchNormalizationLayer('Name', 'norm2');
+    relu2 = reluLayer('Name','relu2');
+    maxpool2 = maxPooling2dLayer([1,2],'Stride',[1,2],'Name','maxpool2');
+
+    conv3 = convolution2dLayer([1,5],64, 'Name','conv3');
+    norm3 = batchNormalizationLayer('Name', 'norm3');
+    relu3 = reluLayer('Name','relu3');
+    maxpool3 = maxPooling2dLayer([2,2],'Stride',[1,2],'Name','maxpool3');
+
+    conv4 = convolution2dLayer([2,2],64, 'Name','conv4');
+    norm4 = batchNormalizationLayer('Name', 'norm4');
+    relu4 = reluLayer('Name','relu4');
+
+    fc1 = fullyConnectedLayer(options.outputSize(3), 'Name', 'fc1');
+    regressor = regressionLayer('Name', 'regressor');
+
+    layers = [
+                input
+                conv1
+                norm1
+                relu1
+                maxpool1
+                conv2
+                norm2
+                relu2
+                maxpool2
+                conv3
+                norm3
+                relu3
+                maxpool3
+                conv4
+                norm4
+                relu4
+                fc1
+                regressor
+        ];
+    net = layerGraph(layers);
 end

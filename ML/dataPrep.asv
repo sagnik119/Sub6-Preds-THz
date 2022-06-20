@@ -9,7 +9,7 @@ function [dataset,options] = dataPrep(fileName,options)
 %	dataset: dataset structure for training and validataion data
 %	options: updated options structure
 %=========================================================================%
-
+rng(7);
 len = length(fileName);
 d = {};
 %loc = {};
@@ -53,6 +53,10 @@ clear d loc labels
 % Shuffling data:
 % ---------------
 options.numSamples = size( dataset.data{1},3 );
+% Check if previous shuffling information is already stored, else create
+% and store for future
+if ~exist("shuffledInd.mat","file")
+    
 shuffledInd = randperm(options.numSamples);
 options.shuffledInd = shuffledInd;
 for i = 1:len
@@ -73,43 +77,33 @@ end
 % ------------
 % numTrain = floor( (1 - options.valPer)*options.numSamples );
 % options.numOfTrain = numTrain;
-numTrain = 1000;
-options.numOfTrain = 1000;
-% options.numOfVal = options.numSamples - options.numOfTrain;
-% sub6Train = dataset.data{1}(:,:,1:numTrain);% Sub-6 training channels
-% sub6Val = dataset.data{1}(:,:,numTrain+1:end);% Sub-6 validation channels
-options.numOfVal = 100;
-sub6Train = dataset.data{1}(:,:,1:numTrain);
-sub6Val = dataset.data{1}(:,:,1:options.numOfVal);
+numTrain = 24000;
+options.numOfTrain = 24000;
+options.numOfVal = options.numSamples - options.numOfTrain;
+sub6Train = dataset.data{1}(:,:,1:numTrain);% Sub-6 training channels
+sub6Val = dataset.data{1}(:,:,numTrain+1:end);% Sub-6 validation channels
+
 % sub6TrainLoc = dataset.userLoc{1}(:,1:numTrain);% Sub-6 training user locations
 % sub6ValLoc = dataset.userLoc{1}(:,numTrain+1:end);% Sub-6 validation user locations
 % dataset.trainInpLoc = sub6TrainLoc;
 % dataset.valInpLoc = sub6ValLoc;
 if len > 1
     highTrain = dataset.data{2}(:,:,1:numTrain);% High training channels
-    %highVal = dataset.data{2}(:,:,numTrain+1:end);% High validation channels
-    highVal = dataset.data{2}(:,:,1:options.numOfVal);
+    highVal = dataset.data{2}(:,:,numTrain+1:end);% High validation channels
     highTrainDoD_phi = dataset.DoD_phi{2}(1:numTrain);
-%     highValDoD_phi = dataset.DoD_phi{2}(numTrain+1:end);
-    highValDoD_phi = dataset.DoD_phi{2}(1:options.numOfVal);
+    highValDoD_phi = dataset.DoD_phi{2}(numTrain+1:end);
     highTrainDoD_theta = dataset.DoD_theta{2}(1:numTrain);
-%     highValDoD_theta = dataset.DoD_theta{2}(numTrain+1:end);
-    highValDoD_theta = dataset.DoD_theta{2}(1:options.numOfVal);
+    highValDoD_theta = dataset.DoD_theta{2}(numTrain+1:end);
     highTrainDoA_phi = dataset.DoA_phi{2}(1:numTrain);
-%     highValDoA_phi = dataset.DoA_phi{2}(numTrain+1:end);
-    highValDoA_phi = dataset.DoA_phi{2}(1:options.numOfVal);
+    highValDoA_phi = dataset.DoA_phi{2}(numTrain+1:end);
     highTrainDoA_theta = dataset.DoA_theta{2}(1:numTrain);
-%     highValDoA_theta = dataset.DoA_theta{2}(numTrain+1:end);
-    highValDoA_theta = dataset.DoA_theta{2}(1:options.numOfVal);
+    highValDoA_theta = dataset.DoA_theta{2}(numTrain+1:end);
     highTrainPhase = dataset.phase{2}(1:numTrain);
-%     highValPhase = dataset.phase{2}(numTrain+1:end);
-    highValPhase = dataset.phase{2}(1:options.numOfVal);
+    highValPhase = dataset.phase{2}(numTrain+1:end);
     highTrainToA = dataset.ToA{2}(1:numTrain);
-%     highValToA = dataset.ToA{2}(numTrain+1:end);
-    highValToA = dataset.ToA{2}(1:options.numOfVal);
+    highValToA = dataset.ToA{2}(numTrain+1:end);
     highTrainPower = dataset.power{2}(1:numTrain);
-%     highValPower = dataset.power{2}(numTrain+1:end);
-    highValPower = dataset.power{2}(1:options.numOfVal);
+    highValPower = dataset.power{2}(numTrain+1:end);
 %     highTrainLoc = dataset.userLoc{2}(:,1:numTrain);% High training user locations
 %     highValLoc = dataset.userLoc{2}(:,numTrain+1:end);% High validation user locations
 %     dataset.trainOutLoc = highTrainLoc;
@@ -148,21 +142,15 @@ temp.sub6Train = sub6Train;
 temp.dataStats = options.dataStats(1);
 sub6Train = sub6Train/options.dataStats(1);% normalize training data
 sub6Val = sub6Val/options.dataStats(1);% normalize validation data
-X = zeros(1,1,2*options.inputDim,options.numOfTrain);
-Y = zeros(1,1,2*options.inputDim,options.numOfVal);
+X = zeros(options.numAnt(1),options.numSub,2,options.numOfTrain);
+Y = zeros(options.numAnt(1),options.numSub,2,options.numOfVal);
 for i = 1:options.numOfTrain
-    x = sub6Train(:,:,i);
-    x = x(:, 1:options.numSub);
-    %x = [real(x);imag(x)];
-    x = [abs(x);angle(x)];
-    X(1,1,:,i) = reshape(x, [numel(x),1]);
+    X(:,:,1,i) = abs(sub6Train(:,:,i));
+    X(:,:,2,i) = angle(sub6Train(:,:,i));
 end
 for i = 1:options.numOfVal
-    y = sub6Val(:,:,i);
-    y = y(:, 1:options.numSub);
-    %y = [real(y);imag(y)];
-    y = [abs(y);angle(y)];
-    Y(1,1,:,i) = reshape(y, [numel(y),1]);
+    Y(:,:,1,i) = abs(sub6Val(:,:,i));
+    Y(:,:,2,i) = angle(sub6Val(:,:,i));
 end
 if options.noisyInput
     % Noise power

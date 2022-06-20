@@ -53,14 +53,7 @@ clear d loc labels
 % Shuffling data:
 % ---------------
 options.numSamples = size( dataset.data{1},3 );
-% Check if previous shuffling information is already stored, else create
-% and store for future
-if ~exist("shuffledInd.mat","file")
-    shuffledInd = randperm(options.numSamples);
-    save ("shuffledInd.mat", "shuffledInd", '-mat');
-else
-    load("shuffledInd.mat", "shuffledInd");
-end
+shuffledInd = randperm(options.numSamples);
 options.shuffledInd = shuffledInd;
 for i = 1:len
     dataset.data{i} = dataset.data{i}(:,:,shuffledInd);
@@ -80,8 +73,8 @@ end
 % ------------
 % numTrain = floor( (1 - options.valPer)*options.numSamples );
 % options.numOfTrain = numTrain;
-numTrain = 24000;
-options.numOfTrain = 24000;
+numTrain = 2400;
+options.numOfTrain = 2400;
 options.numOfVal = options.numSamples - options.numOfTrain;
 sub6Train = dataset.data{1}(:,:,1:numTrain);% Sub-6 training channels
 sub6Val = dataset.data{1}(:,:,numTrain+1:end);% Sub-6 validation channels
@@ -145,15 +138,21 @@ temp.sub6Train = sub6Train;
 temp.dataStats = options.dataStats(1);
 sub6Train = sub6Train/options.dataStats(1);% normalize training data
 sub6Val = sub6Val/options.dataStats(1);% normalize validation data
-X = zeros(options.numAnt(1),options.numSub,2,options.numOfTrain);
-Y = zeros(options.numAnt(1),options.numSub,2,options.numOfVal);
+X = zeros(1,1,2*options.inputDim,options.numOfTrain);
+Y = zeros(1,1,2*options.inputDim,options.numOfVal);
 for i = 1:options.numOfTrain
-    X(:,:,1,i) = abs(sub6Train(:,:,i));
-    X(:,:,2,i) = angle(sub6Train(:,:,i));
+    x = sub6Train(:,:,i);
+    x = x(:, 1:options.numSub);
+    %x = [real(x);imag(x)];
+    x = [abs(x);angle(x)];
+    X(1,1,:,i) = reshape(x, [numel(x),1]);
 end
 for i = 1:options.numOfVal
-    Y(:,:,1,i) = abs(sub6Val(:,:,i));
-    Y(:,:,2,i) = angle(sub6Val(:,:,i));
+    y = sub6Val(:,:,i);
+    y = y(:, 1:options.numSub);
+    %y = [real(y);imag(y)];
+    y = [abs(y);angle(y)];
+    Y(1,1,:,i) = reshape(y, [numel(y),1]);
 end
 if options.noisyInput
     % Noise power

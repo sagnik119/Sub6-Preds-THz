@@ -30,12 +30,8 @@ switch options.type
 %         sfm = softmaxLayer('Name','sfm');
 %         classifier = classificationLayer('Name','classifier');
         %fc6 = fullyConnectedLayer(options.outputSize(3), 'Name', 'fc6');
-        fc6 = fullyConnectedLayer(2048, 'Name', 'fc6');
-        relu6 = reluLayer('Name','relu6');
-        drop6 = dropoutLayer(0.4, 'Name', 'drop6');
-        fc7 = fullyConnectedLayer(1, 'Name',fc7);
-        relu7 = reluLayer('Name','relu7');
-        dr
+        fc6 = fullyConnectedLayer(options.outputSize(3), 'Name', 'fc6');
+%         relu6 = reluLayer('Name','relu6');
         regressor = regressionLayer('Name', 'regressor');
 
         layers = [
@@ -56,6 +52,7 @@ switch options.type
                   relu5
                   drop5
                   fc6
+                  %relu6
                   regressor
                  ];
         net = layerGraph(layers);

@@ -183,7 +183,7 @@ for bs = 1:3
             DoA_theta = trainedNet.predict(X);
             load(strcat('./trained_model.phase.',int2str(bs),'.mat'), 'trainedNet');
             Phase = trainedNet.predict(X);
-            load(strcat('./trained_model.ToA.',int2str(bs),'.mat'), 'trainedNet');
+            load(strcat('./trained_model.ToA_phi.',int2str(bs),'.mat'), 'trainedNet');
             ToA = trainedNet.predict(X);
             load(strcat('./trained_model.Power.',int2str(bs),'.mat'), 'trainedNet');
             Power = trainedNet.predict(X);
@@ -254,7 +254,7 @@ for bs = 1:3
 
             %%%%% Creating and renaming deepMIMO dataset from predicted parameters
             run('../DeepMIMO_Dataset_Generator_100GHz_pred.m');
-            if exist('../DeepMIMO_dataset/dataset_100GHz_pred.mat', 'file')
+            if exist('../DeepMIMO_dataset/dataset_100GHz_pred.mat')
                 delete('../DeepMIMO_dataset/dataset_100GHz_pred.mat');
             end
             copyfile('../DeepMIMO_dataset/dataset_1.mat', '../DeepMIMO_dataset/dataset_100GHz_pred.mat');
