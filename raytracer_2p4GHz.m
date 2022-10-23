@@ -5,10 +5,10 @@ rng(7);
 
 %Defining base station (transmitter) sites
 %%tx properties
-tx_names = ["S Clarke", "Monroe", "Adam"];
-lats = [41.878313, 41.880680, 41.879405];
-lons = [-87.630772, -87.630842, -87.631010];
-heights = [6, 6, 6];
+tx_names = ["S Clarke"];
+lats = [41.878313];
+lons = [-87.630772];
+heights = [6];
 freq = 2.4000e9;
 transmit_power = 1.0000e-3;
 %%Antenna properties
@@ -22,7 +22,7 @@ tx = txsite("Name",tx_names,"Latitude",lats,"Longitude",lons,"TransmitterFrequen
 %show(tx);
 
 % %Defining receiver locations from 100GHz data
-n_recv = 30000;
+n_recv = 20000;
 load ('temp.mat','lats');
 load ('temp.mat','lons');
 

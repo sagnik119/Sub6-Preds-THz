@@ -9,7 +9,6 @@ function [dataset,options] = dataPrep(fileName,options)
 %	dataset: dataset structure for training and validataion data
 %	options: updated options structure
 %=========================================================================%
-rng(7);
 len = length(fileName);
 d = {};
 %loc = {};
@@ -55,13 +54,15 @@ clear d loc labels
 options.numSamples = size( dataset.data{1},3 );
 % Check if previous shuffling information is already stored, else create
 % and store for future
-if ~exist("shuffledInd.mat","file")
-    shuffledInd = randperm(options.numSamples);
-    save ("shuffledInd.mat", "shuffledInd", '-mat');
-else
-    load("shuffledInd.mat", "shuffledInd");
-end
-options.shuffledInd = shuffledInd;
+% if ~exist("shuffledInd.mat","file")
+%     shuffledInd = randperm(options.numSamples);
+%     save ("shuffledInd.mat", "shuffledInd", '-mat');
+% else
+%     load("shuffledInd.mat", "shuffledInd");
+% end
+% options.shuffledInd = shuffledInd;
+shuffledInd = randperm(options.numSamples);
+disp(shuffledInd(1));
 for i = 1:len
     dataset.data{i} = dataset.data{i}(:,:,shuffledInd);
     %dataset.labels{i} = dataset.labels{i}(shuffledInd);
@@ -78,10 +79,8 @@ end
 
 % Divide data:
 % ------------
-% numTrain = floor( (1 - options.valPer)*options.numSamples );
-% options.numOfTrain = numTrain;
-numTrain = 24000;
-options.numOfTrain = 24000;
+numTrain = floor( (1 - options.valPer)*options.numSamples );
+options.numOfTrain = numTrain;
 options.numOfVal = options.numSamples - options.numOfTrain;
 sub6Train = dataset.data{1}(:,:,1:numTrain);% Sub-6 training channels
 sub6Val = dataset.data{1}(:,:,numTrain+1:end);% Sub-6 validation channels
@@ -159,12 +158,18 @@ if options.noisyInput
     % Noise power
     NF=5;% Noise figure at the base station
     Pr=30;
-    BW=options.bandWidth*1e9; % System bandwidth in Hz
+    BW=options.bandWidth_sub6*1e9; % System bandwidth in Hz
     noise_power_dB=-204+10*log10(BW/options.numSub)+NF; % Noise power in dB
     noise_power=10^(.1*(noise_power_dB));% Noise power
-    fprintf("Noise power is");
+    fprintf("Sub-6 Noise power is");
     disp(noise_power);  
-    Pn_r=(noise_power/options.dataStats(1)^2)/2;
+    % Pilot based channel estimation consideration, divide noise power by
+    % pilot power
+    pilot_power_dB = options.pilot_power_sub6_dB;
+    pilot_power = 10^(.1*(pilot_power_dB));
+    fprintf("Sub-6 Pilot power is");
+    disp(pilot_power);  
+    Pn_r=(noise_power/(pilot_power*((options.dataStats(1))^2)))/2 ;   % Change index to feature_ind
     %Pn=Pn_r/(10^(.1*(options.transPower-Pr)));              %TODO why???
     Pn = Pn_r;                                               %TODO Modify
     % Adding noise
@@ -192,6 +197,35 @@ dataset.inpVal = Y;
 
 highTrain = highTrain(1:options.numAnt(2),1:options.numSub,:)/options.dataStats(2);
 highVal = highVal(1:options.numAnt(2),1:options.numSub,:)/options.dataStats(2);
+
+%% Corrupting highTrain using pilot based noise (it makes sense to corrupt highTrain and not X, because beamformer indices are being calculated using highTrain directly)
+if options.noisyInput
+    % Noise power
+    NF=0;% Noise figure at the base station
+    Pr=30;
+    BW=options.bandWidth_THz*1e9; % System bandwidth in Hz
+    noise_power_dB=-204+10*log10(BW/options.numSub)+NF; % Noise power in dB
+    noise_power=10^(.1*(noise_power_dB));% Noise power
+    fprintf("THz Noise power is");
+    disp(noise_power);  
+    % Pilot based channel estimation consideration, divide noise power by
+    % pilot power
+    pilot_power_dB = options.pilot_power_THz_dB;
+    pilot_power = 10^(.1*(pilot_power_dB));
+    fprintf("THz Pilot power is");
+    disp(pilot_power);  
+    Pn_r=(noise_power/(pilot_power*((options.dataStats(2))^2)))/2 ;   % Change index to feature_ind
+    %Pn=Pn_r/(10^(.1*(options.transPower-Pr)));              %TODO why???
+    Pn = Pn_r;                                               %TODO Modify
+    % Adding noise
+    fprintf(['Corrupting channel measurements with ' num2str(Pn) '-variance Gaussian\n'])
+    complex_noise_samples = sqrt(Pn)*randn(size(highTrain))+j*sqrt(Pn)*randn(size(highTrain));% Zero-mean unity-variance complex noise
+    % Sanity check
+    temp_bomb.complex_noise_samples = complex_noise_samples;
+    temp_bomb.highTrain = highTrain;
+    save ("temp_bomb.mat","-struct","temp_bomb");
+    highTrain = highTrain + complex_noise_samples;
+end
 
 % X = zeros(1,1,2*options.outputDim,options.numOfTrain);
 % Y = zeros(1,1,2*options.outputDim,options.numOfVal);

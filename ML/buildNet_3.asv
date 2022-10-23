@@ -1,0 +1,40 @@
+% Dense NN model to determine best beamformer from NORMALIZED THz channel factors
+function net = buildnet_3 ()
+    % Returns NN model
+    % Defining individual layers
+    input = imageInputLayer(7,"Name",'input'); % TODO : may eliminate phase and see if performance remains same or not
+
+    fc1 = fullyConnectedLayer(64, 'Name','fc1');
+    relu1 = reluLayer('Name','relu1');
+
+    fc2 = fullyConnectedLayer(128, 'Name','fc2');
+    relu2 = reluLayer('Name','relu2');
+
+    fc3 = fullyConnectedLayer(256, 'Name','fc3');
+    relu3 = reluLayer('Name','relu3');
+
+    fc1 = fullyConnectedLayer(options.outputSize(3), 'Name', 'fc1');
+    regressor = regressionLayer('Name', 'regressor');
+
+    layers = [
+                input
+                conv1
+                norm1
+                relu1
+                maxpool1
+                conv2
+                norm2
+                relu2
+                maxpool2
+                conv3
+                norm3
+                relu3
+                maxpool3
+                conv4
+                norm4
+                relu4
+                fc1
+                regressor
+        ];
+    net = layerGraph(layers);
+end

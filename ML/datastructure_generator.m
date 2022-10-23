@@ -11,7 +11,7 @@ n_sub = 64;
 if ~exist('DataStructures','dir')
     mkdir 'DataStructures';
 end
-for bs = 1:3
+for bs = 1:1
     channel = zeros([n_ant,n_sub,n_recv]);
     labels = zeros([1,n_recv]);
     DoD_phi = zeros([1,n_recv]);
@@ -89,7 +89,7 @@ if ~exist('DataStructures','dir')
     mkdir 'DataStructures';
 end
 
-for bs = 1:3
+for bs = 1:1
     for i=1:n_recv
         labels(1,i) = DeepMIMO_dataset{1,bs}.user{1,i}.LoS_status;
         DoA_phi(1,i) = DeepMIMO_dataset{1,bs}.user{1,i}.DoA_phi;

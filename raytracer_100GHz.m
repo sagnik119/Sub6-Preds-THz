@@ -5,10 +5,10 @@ rng(7);
 
 % Defining base station (transmitter) sites
 %%% tx properties
-tx_names = ["S Clarke", "Monroe", "Adam"];
-lats = [41.878313, 41.880680, 41.879405];
-lons = [-87.630772, -87.630842, -87.631010];
-heights = [6, 6, 6];
+tx_names = ["S Clarke"];
+lats = [41.878313];
+lons = [-87.630772];
+heights = [6];
 freq = 100e9;
 transmit_power = 10;
 %%% Antenna properties
@@ -22,28 +22,13 @@ tx = txsite("Name",tx_names,"Latitude",lats,"Longitude",lons,"TransmitterFrequen
 
 % Defining receiver locations
 %%% Cluster 1 : Straight line street
-n_recv_1 = 20000;
+n_recv = 20000;
 lat_min = 41.878381;
 lat_max = 41.880677;
 lon_min = -87.630803;
 lon_max = -87.630818;
-lats_1 = lat_min + (lat_max-lat_min)*rand(1,n_recv_1);
-lons_1 = lon_min + (lon_max-lon_min)*rand(1,n_recv_1);
-%%% Cluster 2 : Left Bend in middle corresponding to BS 3 (Quincy)
-n_recv_2 = 10000;
-lat_min = 41.879383;
-lat_max = 41.879431;
-lon_min = -87.630944;
-lon_max = -87.630633;
-lats_2 = lat_min + (lat_max-lat_min)*rand(1,n_recv_2);
-lons_2 = lon_min + (lon_max-lon_min)*rand(1,n_recv_2);
-%%% Concatenating all users in single array and shuffling
-n_recv = n_recv_1 + n_recv_2;
-lats = cat(2, lats_1, lats_2);
-lons = cat(2, lons_1, lons_2);
-rand_ind = randperm(n_recv);
-lats = lats(rand_ind);
-lons = lons(rand_ind);
+lats = lat_min + (lat_max-lat_min)*rand(1,n_recv);
+lons = lon_min + (lon_max-lon_min)*rand(1,n_recv);
 %%% Saving lats, lons for ingestion by 2p4GHz data generator
 temp.lats = lats;
 temp.lons = lons;

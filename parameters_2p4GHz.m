@@ -7,10 +7,10 @@ params.scene_last = 1;
 
 %%%% DeepMIMO parameters set %%%%
 % Active base stations
-params.active_BS = [1,2,3];                 % Includes the numbers of the active BSs (values from 1-18 for 'O1')
+params.active_BS = [1];                 % Includes the numbers of the active BSs (values from 1-18 for 'O1')
 
 % Active users
-params.num_user = 30000;
+params.num_user = 20000;
 params.subsample_user = 1;
 params.active_user_first = 1;       % The first row of the considered receivers section (check the scenario description for the receiver row map)
 params.active_user_last = 1;        % The last row of the considered receivers section (check the scenario description for the receiver row map)

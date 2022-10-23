@@ -1,6 +1,6 @@
 % CNN model 
 
-function net = buildnet (options)
+function net = buildnet_2 (options)
     % Returns CNN model
     % Defining individual layers
     input = imageInputLayer(options.inputSize,"Name",'input');
@@ -25,6 +25,7 @@ function net = buildnet (options)
     relu4 = reluLayer('Name','relu4');
 
     fc1 = fullyConnectedLayer(options.outputSize(3), 'Name', 'fc1');
+    relu5 = reluLayer('Name','relu5');
     regressor = regressionLayer('Name', 'regressor');
 
     layers = [
@@ -45,6 +46,7 @@ function net = buildnet (options)
                 norm4
                 relu4
                 fc1
+                relu5
                 regressor
         ];
     net = layerGraph(layers);
